@@ -1,5 +1,5 @@
 {
-    "name": "hadrondesign-server",
+    "name": "tiles-town-backend",
     "version": "1.0.0",
     "description": "",
     "scripts": {
@@ -12,14 +12,14 @@
     },
     "repository": {
         "type": "git",
-        "url": "git+https://tenemo@github.com/tenemo/hadrondesign-server.git"
+        "url": "git+https://tenemo@github.com/tenemo/tiles-town-backend.git"
     },
     "author": "tenemo@gmail.com",
     "license": "UNLICENSED",
     "bugs": {
-        "url": "https://github.com/tenemo/hadrondesign-server/issues"
+        "url": "https://github.com/tenemo/tiles-town-backend/issues"
     },
-    "homepage": "https://github.com/tenemo/hadrondesign-server#readme",
+    "homepage": "https://github.com/tenemo/tiles-town-backend#readme",
     "dependencies": {
         "babel-cli": "^6.26.0",
         "babel-core": "^6.26.3",
