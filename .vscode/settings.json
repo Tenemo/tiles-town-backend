@@ -19,5 +19,6 @@
     "editor.codeActionsOnSave": { "source.fixAll.eslint": false },
 
     "workbench.iconTheme": "vscode-icons",
-    "cSpell.ignorePaths": ["node_modules", ".git"]
+    "cSpell.ignorePaths": ["node_modules", ".git"],
+    "cSpell.words": ["dbaeumer", "eamodio", "esbenp", "kohler"]
 }

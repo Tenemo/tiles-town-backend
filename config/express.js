@@ -23,9 +23,6 @@ app.use(express.urlencoded({
 }));
 app.use(cookieParser());
 
-// console.log('DELAYING...');
-// app.use(function(req,res,next){setTimeout(next,500);});
-
 if (config.env === 'development') {
     expressWinston.requestWhitelist.push('body');
     expressWinston.responseWhitelist.push('body');
