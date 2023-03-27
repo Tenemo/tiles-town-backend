@@ -1,9 +1,7 @@
-import Sequelize from 'sequelize';
+import { Sequelize } from 'sequelize';
 import _ from 'lodash';
+import { initGame } from 'models/game.model';
 import { config } from './config';
-import gameModel from '../server/models/game.model';
-
-let db = {};
 
 const sequelize = new Sequelize(
     config.postgres.database,
@@ -23,7 +21,6 @@ const sequelize = new Sequelize(
         },
         port: config.postgres.port,
         host: config.postgres.host,
-        operatorsAliases: 0,
         pool: {
             max: 10,
             idle: 30000,
@@ -40,8 +37,7 @@ sequelize
         console.error('Unable to connect to the database:', err); // eslint-disable-line no-console
     });
 
-const model = gameModel(sequelize);
-db.game = model;
+const game = initGame(sequelize);
 
 sequelize
     .sync()
@@ -58,5 +54,5 @@ export default _.extend(
         sequelize,
         Sequelize,
     },
-    db,
+    { game },
 );

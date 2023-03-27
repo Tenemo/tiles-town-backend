@@ -16,7 +16,9 @@ module.exports = {
                 modules: 'commonjs',
             },
         ],
-        '@babel/preset-typescript',
+        ['@babel/preset-typescript',{
+            allowDeclareFields: true,
+        }]
     ],
     plugins: [
         [

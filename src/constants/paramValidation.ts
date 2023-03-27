@@ -1,5 +1,5 @@
 import Joi from 'joi';
-import gameConfig from './gameConfig';
+import { GAME_CONFIG } from 'config';
 
 export default {
     // POST /api/game/new
@@ -7,8 +7,8 @@ export default {
         body: Joi.object({
             size: Joi.number()
                 .integer()
-                .min(gameConfig.minSize)
-                .max(gameConfig.maxSize)
+                .min(GAME_CONFIG.minSize)
+                .max(GAME_CONFIG.maxSize)
                 .required(),
             seed: Joi.string().max(256).allow(null).allow('').trim(),
             previousId: Joi.string()

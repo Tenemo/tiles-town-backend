@@ -1,7 +1,9 @@
+/* TODO: remove */
+/* eslint-disable @typescript-eslint/no-misused-promises */
 import express from 'express';
 import { validate } from 'express-validation';
-import paramValidation from '../../config/paramValidation';
-import gameController from '../controllers/game.controller';
+import paramValidation from 'constants/paramValidation';
+import gameController from 'controllers/game.controller';
 
 const router = express.Router();
 

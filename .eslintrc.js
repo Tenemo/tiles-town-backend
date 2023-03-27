@@ -48,6 +48,7 @@ module.exports = {
         'arrow-parens': [ERROR, 'always', { requireForBlockBody: false }],
         'no-use-before-define': OFF, // @typescript-eslint/no-use-before-define replaces this rule
         'no-restricted-exports': OFF,
+        eqeqeq: ERROR,
 
         'import/no-extraneous-dependencies': [ERROR, { devDependencies: true }],
         'import/prefer-default-export': OFF,
