@@ -90,10 +90,9 @@ const winGame = async (
             game.game_move_count = req.body.moves.length;
             game.game_isWon = isWon;
             const score = calculateScore(game);
-            if (score === null) {
-                throw new Error('Score is null.');
+            if (score) {
+                game.game_score = score;
             }
-            game.game_score = score;
             return game.save().then(() =>
                 res.json({
                     score: game.game_score,
