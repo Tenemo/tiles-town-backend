@@ -4,6 +4,7 @@
     "editor.linkedEditing": true,
     "files.autoSave": "off",
     "javascript.updateImportsOnFileMove.enabled": "prompt",
+    "typescript.tsdk": "node_modules\\typescript\\lib",
     "editor.bracketPairColorization.enabled": true,
     "editor.guides.bracketPairs": true,
 
@@ -15,10 +16,23 @@
     "[javascript]": {
         "editor.defaultFormatter": "dbaeumer.vscode-eslint"
     },
-    "eslint.validate": ["javascript"],
+    "[typescript]": {
+        "editor.defaultFormatter": "dbaeumer.vscode-eslint"
+    },
+    "eslint.validate": ["javascript", "typescript"],
     "editor.codeActionsOnSave": { "source.fixAll.eslint": false },
 
     "workbench.iconTheme": "vscode-icons",
     "cSpell.ignorePaths": ["node_modules", ".git"],
-    "cSpell.words": ["dbaeumer", "eamodio", "esbenp", "kohler"]
+    "cSpell.words": [
+        "coenraad",
+        "dbaeumer",
+        "eamodio",
+        "esbenp",
+        "expressplate",
+        "formulahendry",
+        "gitlens",
+        "kohler",
+        "sourcemap"
+    ]
 }
