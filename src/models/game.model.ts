@@ -87,6 +87,7 @@ export const initGame = (sequelize: Sequelize): typeof Game => {
             },
             game_score: {
                 type: DataTypes.INTEGER,
+                allowNull: true,
             },
             game_player_name: {
                 type: DataTypes.STRING(32),

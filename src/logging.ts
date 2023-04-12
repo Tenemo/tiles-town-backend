@@ -1,12 +1,32 @@
 import { Express, ErrorRequestHandler } from 'express';
-import winston from 'winston';
+import winston, { Logger } from 'winston';
 import * as Sentry from '@sentry/node';
 import * as Tracing from '@sentry/tracing';
-import morgan from 'morgan';
 import expressWinston from 'express-winston';
-import { config } from './config';
+import DailyRotateFile from 'winston-daily-rotate-file';
+import morgan, { StreamOptions } from 'morgan';
 
-export const setupLogging = (app: Express): void => {
+// TODO: don't disable this rule
+/* eslint-disable @typescript-eslint/restrict-template-expressions */
+const winstonFormat = winston.format.combine(
+    winston.format.timestamp(),
+    winston.format.errors({ stack: true }),
+    winston.format.splat(),
+    winston.format.printf(({ timestamp, level, message, stack }) => {
+        return stack
+            ? `${timestamp} [${level}] ${message}\n${stack}`
+            : `${timestamp} [${level}] ${message}`;
+    }),
+);
+/* eslint-enable @typescript-eslint/restrict-template-expressions */
+
+export const setupLogging = (
+    app: Express,
+): {
+    errorLogger: ErrorRequestHandler;
+    logger: Logger;
+    sentryErrorHandler: ErrorRequestHandler;
+} => {
     Sentry.init({
         dsn: 'https://fe2d28a5bda54932b1914fdb2e81ab4c@o502294.ingest.sentry.io/4504889416089600',
         integrations: [
@@ -28,67 +48,52 @@ export const setupLogging = (app: Express): void => {
     // TracingHandler creates a trace for every incoming request
     app.use(Sentry.Handlers.tracingHandler());
 
-    // The error handler must be before any other error middleware and after all controllers
-    app.use(Sentry.Handlers.errorHandler());
-
-    // Optional fallthrough error handler
-    const onError: ErrorRequestHandler = (_err, _req, res) => {
-        // The error id is attached to `res.sentry` to be returned
-        // and optionally displayed to the user for support.
-        res.statusCode = 500;
-        // @ts-ignore
-        res.end((res.sentry as string) + '\n');
+    const winstonConfig = {
+        format: winstonFormat,
+        transports: [
+            new winston.transports.Console({
+                level: 'http',
+            }),
+            new DailyRotateFile({
+                filename: 'logs/combined-%DATE%.log',
+                datePattern: 'YYYY-MM-DD',
+                zippedArchive: true,
+                maxSize: '20m',
+                maxFiles: '14d',
+                level: 'http',
+            }),
+            new DailyRotateFile({
+                filename: 'logs/error-%DATE%.log',
+                datePattern: 'YYYY-MM-DD',
+                zippedArchive: true,
+                maxSize: '20m',
+                maxFiles: '30d',
+                level: 'error',
+            }),
+        ],
     };
 
-    app.use(onError);
+    const logger = winston.createLogger(winstonConfig);
 
-    const logger = winston.createLogger({
-        level: 'http',
-        format: winston.format.json(),
+    const morganStream: StreamOptions = {
+        write: (message: string) => {
+            logger.info(message.trim());
+        },
+    };
+    app.use(morgan('combined', { stream: morganStream }));
+
+    const errorLogger = expressWinston.errorLogger({
+        format: winstonFormat,
         transports: [
-            new winston.transports.File({
-                filename: './logs/error.log',
+            new winston.transports.Console({
                 level: 'error',
-                handleExceptions: true,
-                maxsize: 10 * 1048576, // 10 MB
-                maxFiles: 5,
-            }),
-            new winston.transports.File({
-                filename: './logs/combined.log',
-                maxsize: 10 * 1048576, // 10 MB
-                maxFiles: 5,
             }),
         ],
     });
-    if (process.env.NODE_ENV !== 'production') {
-        logger.add(
-            new winston.transports.Console({
-                format: winston.format.simple(),
-            }),
-        );
-    }
 
-    if (config.env === 'development') {
-        expressWinston.requestWhitelist.push('body');
-        expressWinston.responseWhitelist.push('body');
-        app.use(
-            expressWinston.logger({
-                winstonInstance: logger,
-                meta: true, // optional: log meta data about request (defaults to true)
-                msg: 'HTTP {{req.method}} {{req.url}} {{res.statusCode}} {{res.responseTime}}ms',
-            }),
-        );
-    }
-
-    const morganMiddleware = morgan(
-        ':method :url :status :res[content-length] - :response-time ms',
-        {
-            stream: {
-                // Configure Morgan to use our custom logger with the http severity
-                write: (message) => logger.http(message.trim()),
-            },
-        },
-    );
-
-    app.use(morganMiddleware);
+    return {
+        errorLogger,
+        logger,
+        sentryErrorHandler: Sentry.Handlers.errorHandler(),
+    };
 };

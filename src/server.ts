@@ -1,9 +1,9 @@
-import { setupLogging } from './logging';
-import express from 'express';
+import express, { ErrorRequestHandler } from 'express';
 import cookieParser from 'cookie-parser';
-import routes from 'routes/index.route';
+import { router } from 'routes/router';
 import { config } from './config';
 import cors from 'cors';
+import { setupLogging } from './logging';
 
 export const app = express();
 
@@ -16,9 +16,42 @@ app.use(
 );
 app.use(cookieParser());
 
-app.use('/api', routes);
+const { errorLogger, logger, sentryErrorHandler } = setupLogging(app);
 
-setupLogging(app);
+app.use('/api', router);
+
+// The error handler must be before any other error middleware and after all controllers
+app.use(sentryErrorHandler);
+
+// Optional fallthrough error handler
+const onError: ErrorRequestHandler = (_err, _req, res) => {
+    // The error id is attached to `res.sentry` to be returned
+    // and optionally displayed to the user for support.
+    res.statusCode = 500;
+    // @ts-ignore
+    res.end((res.sentry as string) + '\n');
+};
+
+app.use(onError);
+
+// express-winston errorLogger makes sense AFTER the router.
+app.use(errorLogger);
+
+console.log = (message: string) =>
+    logger.log({
+        level: 'info',
+        message,
+    });
+console.warn = (message: string) =>
+    logger.warn({
+        level: 'warn',
+        message,
+    });
+console.error = (message: string) =>
+    logger.error({
+        level: 'error',
+        message,
+    });
 
 export const server = app.listen(config.port, () => {
     console.log(
