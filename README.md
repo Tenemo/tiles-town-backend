@@ -1,4 +1,4 @@
-## tiles-town-backend
+## tiles.town backend
 
 Backend for [tiles.town](https://tiles.town).
 
